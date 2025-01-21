@@ -14,7 +14,10 @@
         <a-asset-item id="Bench" src="./models/Bench.glb"></a-asset-item>
         <a-asset-item id="Valise" src="./models/Valise.glb"></a-asset-item>
         <a-asset-item id="Box" src="./models/Box.glb"></a-asset-item>
-        <a-asset-item id="feather-model" src="./models/plume.glb"></a-asset-item> <!-- Plume 3D -->
+        <a-asset-item id="feather-model" src="./models/plume.glb"></a-asset-item>
+        <a-asset-item id="pong-model" src="./models/pong.glb"></a-asset-item>
+        <a-asset-item id="bateau" src="./models/bateau.glb"></a-asset-item>
+
         <!-- Audios -->
         <audio id="bench-music" src="./audio/theme.mp3" preload="auto"></audio>
         <audio id="box-music" src="./audio/box.mp3" preload="auto"></audio>
@@ -48,9 +51,9 @@
         <!-- Valise -->
         <a-entity id="Valise"
                   gltf-model="#Valise"
-                  position="0.8 0.3 -15"
+                  position="0.8 0.3 -13"
                   rotation="0 120 0"
-                  scale="0.15 0.15 0.15"
+                  scale="0.4 0.4 0.4"
                   class="clickable"
                   cursor-listener>
         </a-entity>
@@ -58,21 +61,37 @@
         <!-- Boîte de chocolat -->
         <a-entity id="Box"
                   gltf-model="#Box"
-                  position="1.4 1.05 -23"
-                  rotation="0 30 0"
-                  scale="0.5 0.5 0.5"
+                  position="0 1.05 -20"
+                  rotation="40 30 0"
+                  scale="0.8 0.8 0.8"
+                  class="clickable"
+                  cursor-listener>
+        </a-entity>
+        <!-- Plumes tombant en boucle -->
+        <a-entity gltf-model="#feather-model"
+                  id="feather1"
+                  position="0 5 -25"
+                  dynamic-body="mass: 0.1"
+                  animation="property: position; to:0 0 -25; dur: 3000; loop: true; dir: normal;">
+        </a-entity>
+
+        <a-entity id="Pong"
+                  gltf-model="#pong-model"
+                  position="1.4 1.05 -32"
+                  rotation="40 30 0"
+                  scale="0.8 0.8 0.8"
+                  class="clickable"
+                  cursor-listener>
+        </a-entity>
+        <a-entity id="bateau"
+                  gltf-model="#bateau"
+                  position="1.4 -1 -38"
+                  scale="0.015 0.015 0.015"
                   class="clickable"
                   cursor-listener>
         </a-entity>
     </a-entity>
 
-    <!-- Plumes tombant en boucle -->
-    <a-entity gltf-model="#feather-model"
-              id="feather1"
-              position="0 5 -30"
-              dynamic-body="mass: 0.1"
-              animation="property: position; to: 0 0 -30; dur: 3000; loop: true; dir: normal;">
-    </a-entity>
 
 </a-scene>
 
@@ -129,7 +148,8 @@
 
             // Déplacement sur l'axe Z (en avant ou en arrière)
             if (Math.abs(forwardBackwardInput) > 0.1) { // Évite les micro-mouvements
-                position.z -= forwardBackwardInput * this.data.speed;
+                position.z += forwardBackwardInput * this.data.speed;
+
             }
 
             // Appliquer la position mise à jour
