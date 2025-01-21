@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Forest Gump</title>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 </head>
 <body>
-<a-scene physics="debug: false" fog="type: exponential; color: white; density: 0.2">
-
+<a-scene physics="debug: false" fog="type: exponential; color: white; density: 0.2" vr-mode-ui="enabled: true">
     <a-assets>
         <!-- Modèles 3D -->
         <a-asset-item id="Bench" src="./models/Bench.glb"></a-asset-item>
@@ -27,10 +26,12 @@
     <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
 
     <!-- Caméra avec corps dynamique -->
-    <a-entity id="rig" position="0.2 1 6" dynamic-body move-forward-only>
-        <a-camera id="camera" camera="look-controls: true;" movement-controls="enabled: true; userHeight: true;">
+    <a-entity id="rig" position="0.2 1 6" movement-controls="enabled: true">
+        <a-camera id="camera" camera="look-controls: true;">
             <a-cursor id="cursor" position="0 0 -1" material="color: red; shader: flat;"></a-cursor>
         </a-camera>
+        <a-entity oculus-touch-controls="hand: left" id="leftHand"></a-entity>
+        <a-entity oculus-touch-controls="hand: right" id="rightHand"></a-entity>
     </a-entity>
 
     <!-- Scène principale -->
@@ -100,24 +101,6 @@
             });
         }
     });
-
-    // Limitons les déplacements à l'avant avec le contrôleur
-    // Composant personnalisé pour limiter les mouvements uniquement vers l'avant
-    AFRAME.registerComponent('move-forward-only', {
-        init: function () {
-            var camera = document.querySelector('#camera');
-            var movement = camera.getAttribute('movement-controls');
-
-            // Restreindre les mouvements uniquement en avant (axe Z)
-            movement = movement || {};
-            movement.acceleration = {x: 0, y: 0, z: 5};  // Avancer uniquement dans l'axe Z
-            movement.speed = 3;  // Ajuster la vitesse si nécessaire
-            camera.setAttribute('movement-controls', movement);
-        }
-    });
-
-    // Ajoute ce composant au "rig"
-    document.querySelector('#rig').setAttribute('move-forward-only', '');
 </script>
 
 </body>
