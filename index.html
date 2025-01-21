@@ -124,14 +124,12 @@
         tick: function () {
             const position = this.el.object3D.position;
 
-            // Déplacement en avant avec le joystick gauche (axe y négatif)
-            if (this.joystickInputLeft.y < -0.1) {
-                position.z -= this.data.speed;
-            }
+            // Combine les entrées des deux manettes pour le mouvement avant/arrière
+            const forwardBackwardInput = this.joystickInputLeft.y + this.joystickInputRight.y;
 
-            // Déplacement en arrière avec le joystick droit (axe y positif)
-            if (this.joystickInputRight.y > 0.1) {
-                position.z += this.data.speed;
+            // Déplacement sur l'axe Z (en avant ou en arrière)
+            if (Math.abs(forwardBackwardInput) > 0.1) { // Évite les micro-mouvements
+                position.z -= forwardBackwardInput * this.data.speed;
             }
 
             // Appliquer la position mise à jour
