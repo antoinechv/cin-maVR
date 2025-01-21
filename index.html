@@ -10,80 +10,111 @@
 <body>
 <a-scene physics="debug: false" fog="type: exponential; color: white; density: 0.2">
     <a-assets>
+        <!-- Modèles 3D -->
         <a-asset-item id="Bench" src="./models/Bench.glb"></a-asset-item>
-        <a-asset-item id="Valise" src="./models/valise.glb"></a-asset-item>
-        <a-asset-item id="box" src="./models/chocolate.glb"></a-asset-item>
-        <img id="poster" src="./images/affiche.jpeg" alt="Forest Gump Poster">
-        <audio id="background-music" src="./audio/theme.mp3" preload="auto"></audio>
+        <a-asset-item id="Valise" src="./models/Valise.glb"></a-asset-item>
+        <a-asset-item id="Box" src="./models/Box.glb"></a-asset-item>
+        <a-asset-item id="feather-model" src="./models/plume.glb"></a-asset-item> <!-- Plume 3D -->
+        <!-- Audios -->
+        <audio id="bench-music" src="./audio/theme.mp3" preload="auto"></audio>
+        <audio id="box-music" src="./audio/box.mp3" preload="auto"></audio>
+        <audio id="valise-music" src="./audio/valise.mp3" preload="auto"></audio>
     </a-assets>
 
     <!-- Lumières -->
     <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
 
-    <!-- Caméra avec corps dynamique pour collision -->
-    <a-entity id="rig" position="0 1 7" dynamic-body>
+    <!-- Caméra avec corps dynamique -->
+    <a-entity id="rig" position="0.2 1 6" dynamic-body>
         <a-camera id="camera" camera="look-controls: false;">
-            <a-cursor position="0 0 -1"
-                      material="color: white; shader: flat;">
-            </a-cursor>
+            <a-cursor id="cursor" position="0 0 -1" material="color: red; shader: flat;"></a-cursor>
         </a-camera>
     </a-entity>
 
-    <!-- Boîte noire autour de l'affiche -->
-    <a-box id="poster-room" position="0 1.5 3" depth="8" height="4" width="4"
-           material="color: #000; side: double;" static-body>
-        <a-entity position="0 0.8 -3.94">
-            <a-box position="0 -0.6 0" width="2.3" height="3.3" depth="0.1"
-                   material="color: black; emissive: #fff; emissive-intensity: 0.2;">
-                <a-plane position="0 0 0.06" width="2" height="3" material="src: #poster; side: double;"
-                         class="enter-button">
-                </a-plane>
-            </a-box>
+    <!-- Scène principale -->
+    <a-entity>
+        <!-- Banc -->
+        <a-entity id="Bench"
+                  gltf-model="#Bench"
+                  position="0.8 1 -2"
+                  scale="0.2 0.1 0.1"
+                  class="clickable"
+                  cursor-listener>
         </a-entity>
 
-        <!-- Spots lumineux au plafond -->
-        <a-light type="point" position="-2 3 0" intensity="1" color="#ffffff" castShadow="true"></a-light>
-        <a-light type="point" position="2 3 0" intensity="1" color="#ffffff" castShadow="true"></a-light>
-        <a-light type="point" position="0 3 -2" intensity="0.7" color="#ffffff" castShadow="true"></a-light>
-        <a-light type="point" position="0 3 2" intensity="0.7" color="#ffffff" castShadow="true"></a-light>
-    </a-box>
-
-
-    <!-- Scène principale (cachée au début) -->
-    <a-entity id="main-scene" visible="false">
-        <!-- Banc -->
-        <a-entity gltf-model="#Bench" position="0.8 1 -0.8" scale="0.2 0.1 0.1"></a-entity>
         <!-- Valise -->
-        <a-entity gltf-model="#Valise" position="0.8 0.3 -0.6" rotation="0 120 0" scale="0.15 0.15 0.15"></a-entity>
+        <a-entity id="Valise"
+                  gltf-model="#Valise"
+                  position="0.8 0.3 -15"
+                  rotation="0 120 0"
+                  scale="0.15 0.15 0.15"
+                  class="clickable"
+                  cursor-listener>
+        </a-entity>
+
         <!-- Boîte de chocolat -->
-        <a-entity gltf-model="#box" position="1.4 1.05 -0.6" rotation="0 30 0" scale="0.15 0.15 0.15"></a-entity>
-        <!-- Son de fond -->
-        <a-entity id="background-sound"
-                  sound="src: #background-music; autoplay: false; loop: true; volume: 0.5"></a-entity>
+        <a-entity id="Box"
+                  gltf-model="#Box"
+                  position="1.4 1.05 -23"
+                  rotation="0 30 0"
+                  scale="0.5 0.5 0.5"
+                  class="clickable"
+                  cursor-listener>
+        </a-entity>
     </a-entity>
+
+    <!-- Plumes tombant en boucle -->
+    <a-entity gltf-model="#feather-model"
+              id="feather1"
+              position="0 5 -30"
+              dynamic-body="mass: 0.1"
+              animation="property: position; to: 0 0 -30; dur: 3000; loop: true; dir: normal;">
+    </a-entity>
+
 </a-scene>
 
-
 <script>
-    // Script pour gérer la transition entre l'affiche et la scène principale
-    document.querySelector('.enter-button').addEventListener('click', () => {
-        // Masquer la boîte noire
-        const posterRoom = document.querySelector('#poster-room');
-        posterRoom.setAttribute('visible', 'false');
+    // Ajoute un listener pour chaque objet qui déclenche la musique quand le curseur entre dans l'objet
+    AFRAME.registerComponent('cursor-listener', {
+        init: function () {
+            var el = this.el;
+            var music;
 
-        // Rendre visible la scène principale
-        const mainScene = document.querySelector('#main-scene');
-        mainScene.setAttribute('visible', 'true');
+            // Détection de l'entrée du curseur
+            el.addEventListener('mouseenter', function () {
+                if (el.id === 'Bench') {
+                    music = document.querySelector('#bench-music');
+                    music.volume = 0.1;  // Baisse le volume à 10%
+                } else if (el.id === 'Valise') {
+                    music = document.querySelector('#valise-music');
+                } else if (el.id === 'Box') {
+                    music = document.querySelector('#box-music');
+                    music.volume = 1;
+                }
 
-        // Activer les contrôles de la caméra
-        const camera = document.querySelector('#camera');
-        camera.setAttribute('look-controls', 'enabled: true');
-        camera.setAttribute('wasd-controls', 'enabled: true');
-
-        // Lancer la musique
-        const backgroundSound = document.querySelector('#background-sound');
-        backgroundSound.components.sound.playSound();
+                if (music) {
+                    music.play();
+                }
+            });
+        }
     });
+
+    // Limitons les déplacements à l'avant avec le contrôleur
+    AFRAME.registerComponent('move-forward-only', {
+        init: function () {
+            var camera = document.querySelector('#camera');
+            var movement = camera.getAttribute('movement-controls');
+
+            // Restreindre les mouvements uniquement en avant
+            movement = movement || {};
+            movement.acceleration = {x: 0, y: 0, z: 5};  // seulement avancer (modifier selon besoin)
+            camera.setAttribute('movement-controls', movement);
+        }
+    });
+
+    // Applique cette restriction au rig
+    document.querySelector('#rig').setAttribute('move-forward-only', '');
 </script>
+
 </body>
 </html>
