@@ -9,6 +9,7 @@
 </head>
 <body>
 <a-scene physics="debug: false" fog="type: exponential; color: white; density: 0.2">
+
     <a-assets>
         <!-- Modèles 3D -->
         <a-asset-item id="Bench" src="./models/Bench.glb"></a-asset-item>
@@ -21,12 +22,13 @@
         <audio id="valise-music" src="./audio/valise.mp3" preload="auto"></audio>
     </a-assets>
 
+    <a-sky color="white"></a-sky>
     <!-- Lumières -->
     <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
 
     <!-- Caméra avec corps dynamique -->
-    <a-entity id="rig" position="0.2 1 6" dynamic-body>
-        <a-camera id="camera" camera="look-controls: false;">
+    <a-entity id="rig" position="0.2 1 6" dynamic-body move-forward-only>
+        <a-camera id="camera" camera="look-controls: true;" movement-controls="enabled: true; userHeight: true;">
             <a-cursor id="cursor" position="0 0 -1" material="color: red; shader: flat;"></a-cursor>
         </a-camera>
     </a-entity>
@@ -100,19 +102,21 @@
     });
 
     // Limitons les déplacements à l'avant avec le contrôleur
+    // Composant personnalisé pour limiter les mouvements uniquement vers l'avant
     AFRAME.registerComponent('move-forward-only', {
         init: function () {
             var camera = document.querySelector('#camera');
             var movement = camera.getAttribute('movement-controls');
 
-            // Restreindre les mouvements uniquement en avant
+            // Restreindre les mouvements uniquement en avant (axe Z)
             movement = movement || {};
-            movement.acceleration = {x: 0, y: 0, z: 5};  // seulement avancer (modifier selon besoin)
+            movement.acceleration = {x: 0, y: 0, z: 5};  // Avancer uniquement dans l'axe Z
+            movement.speed = 3;  // Ajuster la vitesse si nécessaire
             camera.setAttribute('movement-controls', movement);
         }
     });
 
-    // Applique cette restriction au rig
+    // Ajoute ce composant au "rig"
     document.querySelector('#rig').setAttribute('move-forward-only', '');
 </script>
 
