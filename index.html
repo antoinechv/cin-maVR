@@ -25,8 +25,8 @@
     <!-- Lumières -->
     <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
 
-    <!-- Caméra avec corps dynamique -->
-    <a-entity id="rig" position="0.2 1 6" movement-controls="enabled: true">
+    <!-- Caméra avec contrôle de mouvement personnalisé -->
+    <a-entity id="rig" position="0.2 1 6" only-forward>
         <a-camera id="camera" camera="look-controls: true;">
             <a-cursor id="cursor" position="0 0 -1" material="color: red; shader: flat;"></a-cursor>
         </a-camera>
@@ -99,6 +99,49 @@
                     music.play();
                 }
             });
+        }
+    });
+
+    // Composante personnalisée pour avancer uniquement lorsqu'un bouton est pressé
+    AFRAME.registerComponent('only-forward', {
+        schema: {
+            speed: {type: 'number', default: 0.1} // Vitesse de déplacement
+        },
+        init: function () {
+            this.isMoving = false; // Démarrage à l'arrêt
+            const self = this;
+
+            // Écoute les entrées de la manette ou du clavier
+            window.addEventListener('keydown', function (event) {
+                if (event.key === 'w' || event.key === 'ArrowUp') { // Avancer (clavier)
+                    self.isMoving = true;
+                }
+            });
+
+            window.addEventListener('keyup', function (event) {
+                if (event.key === 'w' || event.key === 'ArrowUp') {
+                    self.isMoving = false;
+                }
+            });
+
+            this.el.addEventListener('triggerdown', function () { // Bouton de la manette
+                self.isMoving = true;
+            });
+
+            this.el.addEventListener('triggerup', function () {
+                self.isMoving = false;
+            });
+        },
+        tick: function () {
+            if (this.isMoving) {
+                const position = this.el.object3D.position;
+
+                // Avance uniquement sur l'axe Z
+                position.z -= this.data.speed;
+
+                // Appliquez la nouvelle position
+                this.el.setAttribute('position', position);
+            }
         }
     });
 </script>
