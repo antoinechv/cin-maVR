@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Forest Gump</title>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
 </head>
 <body>
-<a-scene physics="debug: false" fog="type: exponential; color: white; density: 0.2" vr-mode-ui="enabled: true">
+<a-scene physics="debug: false" fog="type: exponential; color: white; density: 0.15" vr-mode-ui="enabled: true">
     <a-assets>
         <!-- Modèles 3D -->
         <a-asset-item id="Bench" src="./models/Bench.glb"></a-asset-item>
@@ -18,15 +17,15 @@
         <a-asset-item id="feather-model" src="./models/plume.glb"></a-asset-item>
         <a-asset-item id="pong-model" src="./models/pong.glb"></a-asset-item>
         <a-asset-item id="bateau" src="./models/bateau.glb"></a-asset-item>
+
     </a-assets>
 
     <a-sky color="white"></a-sky>
-
     <!-- Lumières -->
     <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
 
-    <!-- Caméra avec contrôle -->
-    <a-entity id="rig" joystick-movement position="1 1.6 2" rotation="-20 0 0">
+    <!-- Caméra avec contrôle de mouvement personnalisé -->
+    <a-entity id="rig" movement-controls position="1 0.5 2" >
         <a-entity
                 camera
                 position="0 1.6 0"
@@ -35,6 +34,8 @@
         >
             <a-cursor id="cursor" position="0 0 -1" material="color: red; shader: flat;"></a-cursor>
         </a-entity>
+        <a-entity oculus-touch-controls="hand: left" id="leftHand"></a-entity>
+        <a-entity oculus-touch-controls="hand: right" id="rightHand"></a-entity>
     </a-entity>
 
     <!-- Scène principale -->
@@ -45,41 +46,45 @@
                   position="0.8 1 -5"
                   scale="0.2 0.1 0.1"
                   sound="src: #bench-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 4; maxDistance: 12; volume: 0.3">
+            cursor-listener
         </a-entity>
 
         <!-- Valise -->
         <a-entity id="Valise"
                   gltf-model="#Valise"
-                  position="0.8 0.3 -15"
+                  position="0.8 0.3 -5"
                   rotation="0 120 0"
-                  scale="0.4 0.4 0.4"
+                  scale="0.15 0.15 0.15"
                   sound="src: #valise-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 5; maxDistance: 20; volume: 0.2">
+            cursor-listener
         </a-entity>
 
         <!-- Boîte de chocolat -->
         <a-entity id="Box"
                   gltf-model="#Box"
-                  position="0 1.05 -25"
+                  position="0 1.05 -15"
                   rotation="40 30 0"
                   scale="0.8 0.8 0.8"
                   sound="src: #box-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 6; maxDistance: 18; volume: 0.4">
+            cursor-listener
         </a-entity>
 
         <!-- Plume tombante -->
         <a-entity gltf-model="#feather-model"
                   id="feather1"
-                  position="0 5 -35"
+                  position="0 5 -25"
                   dynamic-body="mass: 0.1"
-                  animation="property: position; to:0 0 -35; dur: 3000; loop: true; dir: normal;">
+                  animation="property: position; to:0 0 -25; dur: 3000; loop: true; dir: normal;">
         </a-entity>
 
         <!-- Jeu Pong -->
         <a-entity id="Pong"
                   gltf-model="#pong-model"
-                  position="0.2 -0.8 -45"
+                  position="0.2 -0.8 -35"
                   scale="0.8 0.8 0.8"
                   rotation="-30 0 0"
                   sound="src: #pong-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 4; maxDistance: 15; volume: 0.3">
+            cursor-listener
         </a-entity>
 
         <!-- Bateau -->
@@ -89,6 +94,7 @@
                   rotation="0 120 0"
                   scale="0.01 0.01 0.01"
                   sound="src: #bateau-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 7; maxDistance: 25; volume: 0.4">
+            cursor-listener
         </a-entity>
     </a-entity>
 
@@ -101,27 +107,68 @@
 
 <script>
     // Composant personnalisé pour le mouvement avant et arrière avec le joystick
+    AFRAME.registerComponent('cursor-listener', {
+        init: function () {
+            var el = this.el;
+            var music;
+
+            // Détection de l'entrée du curseur
+            el.addEventListener('mouseenter', function () {
+                if (el.id === 'Bench') {
+                    music = document.querySelector('#bench-music');
+                    music.volume = 0.1;  // Baisse le volume à 10%
+                } else if (el.id === 'Valise') {
+                    music = document.querySelector('#valise-music');
+                } else if (el.id === 'Box') {
+                    music = document.querySelector('#box-music');
+                    music.volume = 1;
+                } else if (el.id === 'bateau') {
+                    music = document.querySelector('#bateau-music');
+                    music.volume = 0.2;
+                } else if (el.id === 'Pong') {
+                    music = document.querySelector('#pong-music');
+                    music.volume = 0.5;
+                }
+
+                if (music) {
+                    music.play();
+                }
+            });
+        }
+    });
+
+    // Composant personnalisé pour le mouvement avec les joysticks
     AFRAME.registerComponent('joystick-movement', {
         schema: {
             speed: {type: 'number', default: 0.1} // Vitesse de déplacement
         },
         init: function () {
-            this.joystickInput = {x: 0, y: 0}; // Initialisation des données du joystick
+            this.joystickInputLeft = {x: 0, y: 0};
+            this.joystickInputRight = {x: 0, y: 0};
 
-            // Écoute les mouvements du joystick gauche
-            this.el.sceneEl.addEventListener('thumbstickmoved', (event) => {
-                this.joystickInput = event.detail;
+            // Écoute le joystick gauche
+            document.querySelector('#leftHand').addEventListener('thumbstickmoved', (event) => {
+                this.joystickInputLeft = event.detail;
+            });
+
+            // Écoute le joystick droit
+            document.querySelector('#rightHand').addEventListener('thumbstickmoved', (event) => {
+                this.joystickInputRight = event.detail;
             });
         },
         tick: function () {
             const position = this.el.object3D.position;
 
-            // Se déplacer en avant/arrière (axe Z)
-            if (Math.abs(this.joystickInput.y) > 0.1) { // Seuil pour éviter les petits mouvements involontaires
-                position.z += this.joystickInput.y * this.data.speed;
+            // Combine les entrées des deux manettes pour le mouvement avant/arrière
+            const forwardBackwardInput = this.joystickInputLeft.y + this.joystickInputRight.y;
+
+            // Déplacement sur l'axe Z (en avant ou en arrière)
+            if (Math.abs(forwardBackwardInput) > 0.1) { // Évite les micro-mouvements
+                position.z += forwardBackwardInput * this.data.speed;
+
             }
 
-            // Mise à jour de la position
+            // Appliquer la position mise à jour
             this.el.setAttribute('position', position);
         }
     });
