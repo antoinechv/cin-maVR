@@ -71,7 +71,7 @@
         <!-- Boîte de chocolat -->
         <a-entity id="Box"
                   gltf-model="#Box"
-                  position="0 1.05 -15"
+                  position="0 1.05 -20"
                   rotation="40 30 0"
                   scale="0.8 0.8 0.8"
                   sound="src: #box-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 6; maxDistance: 18; volume: 1.2">
@@ -83,7 +83,7 @@
         <!-- Jeu Pong -->
         <a-entity id="Pong"
                   gltf-model="#pong-model"
-                  position="0.2 -0.8 -25"
+                  position="0.2 -0.8 -35"
                   scale="0.8 0.8 0.8"
                   rotation="-30 0 0"
                   sound="src: #pong-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 4; maxDistance: 15; volume: 0.6">
@@ -93,17 +93,21 @@
         <!-- Bateau -->
         <a-entity id="bateau"
                   gltf-model="#bateau"
-                  position="5 -1 -40"
+                  position="5 -1 -50"
                   rotation="0 120 0"
                   scale="0.01 0.01 0.01"
                   sound="src: #bateau-music; autoplay: true; loop: true; positional: true; distanceModel: linear; refDistance: 7; maxDistance: 25; volume: 0.1">
             cursor-listener
         </a-entity>
+        <a-entity
+                text="value: The End; color: black; align: center; font: https://cdn.aframe.io/fonts/mozillavr.fnt; "
+                position="0 4.5 -60"
+                scale="50 50 50">
+        </a-entity>
     </a-entity>
 
     <audio id="bench-music" src="./audio/theme.mp3" preload="auto"></audio>
     <audio id="box-music" src="./audio/box.mp3" preload="auto"></audio>
-    <audio id="valise-music" src="./audio/valise.mp3" preload="auto"></audio>
     <audio id="bateau-music" src="./audio/bateau.MP3" preload="auto"></audio>
     <audio id="pong-music" src="./audio/pong.mp3" preload="auto"></audio>
 </a-scene>
